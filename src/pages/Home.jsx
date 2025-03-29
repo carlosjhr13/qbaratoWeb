@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
-import Categories from "../components/Categories";
-import FeaturedProducts from "../components/FeaturedProducts";
+import StorePromotions from "../components/StorePromotions";
+import RecommendedProducts from "../components/RecommendedProducts";
 import PromotionalBanners from "../components/PromotionalBanners";
 import AssistantChat from "../components/AssistantChat";
 
@@ -10,8 +10,8 @@ function Home({
   setQuantity,
   pricePerUnit,
   quickProducts,
-  categories,
-  featuredProducts,
+  promotions,
+  recommendedProducts, // cambiado de featuredProducts
 }) {
   return (
     <>
@@ -21,8 +21,8 @@ function Home({
         pricePerUnit={pricePerUnit}
         quickProducts={quickProducts}
       />
-      <Categories categories={categories} />
-      <FeaturedProducts featuredProducts={featuredProducts} />
+      <StorePromotions promotions={promotions} />
+      <RecommendedProducts recommendedProducts={recommendedProducts} />
       <AssistantChat />
     </>
   );

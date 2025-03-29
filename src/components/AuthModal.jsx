@@ -1,12 +1,26 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User } from 'lucide-react';
+import { auth } from '../firebase/config';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const [mode, setMode] = useState(initialMode);
+  const [error, setError] = useState(null);
 
-  const handleGoogleLogin = () => {
-    // Aquí irá la lógica de autenticación con Google
-    console.log('Google login clicked');
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Aquí puedes manejar el usuario autenticado
+      console.log('Usuario autenticado:', result.user);
+      
+      // Cierra el modal después de autenticar
+      onClose();
+    } catch (error) {
+      setError(error.message);
+      console.error('Error en autenticación:', error);
+    }
   };
 
   return (
@@ -112,6 +126,12 @@ function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           </div>
         </div>
       </div>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          {error}
+        </div>
+      )}
     </>
   );
 }

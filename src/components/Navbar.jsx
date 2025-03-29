@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Search, ShoppingCart, User, LogOut } from "lucide-react";
 import Cart from "./Cart";
 import AuthModal from "./AuthModal";
+import { auth } from "../firebase/config";
 
 function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -10,6 +11,24 @@ function Navbar() {
   const [authMode, setAuthMode] = useState("login");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      setIsProfileMenuOpen(false);
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Ejemplo de resultados de búsqueda (reemplazar con datos reales)
   const searchResults = [
@@ -91,15 +110,56 @@ function Navbar() {
                   2
                 </span>
               </button>
-              <button
-                className="p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 flex items-center"
-                onClick={() => {
-                  setAuthMode("signup");
-                  setIsAuthModalOpen(true);
-                }}
-              >
-                <User className="w-5 h-5" />
-              </button>
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-800 hover:border-green-900 transition-colors"
+                  >
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+
+                  {isProfileMenuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                        <div className="px-4 py-2 border-b border-gray-200">
+                          <p className="font-medium truncate">
+                            {user.displayName}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full px-4 py-2 text-left text-red-600 hover:bg-gray-50 flex items-center space-x-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Cerrar Sesión</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <button
+                  className="p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 flex items-center"
+                  onClick={() => {
+                    setAuthMode("signup");
+                    setIsAuthModalOpen(true);
+                  }}
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              )}
               {/* <button 
                 className="px-4 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600"
                 onClick={() => {
